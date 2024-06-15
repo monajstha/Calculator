@@ -1,6 +1,22 @@
 let firstNumber;
 let operator;
 let lastNumber;
+let displayValue = "";
+
+console.log("hello");
+
+const inputScreen = document.querySelector(".input-screen");
+const displayText = document.createElement("p");
+
+// Selecting all input buttons and adding display text
+const allInputButtons = document.querySelectorAll(".buttons-container button");
+console.log(allInputButtons);
+allInputButtons.forEach((item) => {
+  item.addEventListener("click", (e) => {
+    displayValue += e.target.id;
+    displayText.textContent = displayValue;
+  });
+});
 
 const add = function (num1, num2) {
   return num1 + num2;
@@ -38,9 +54,5 @@ const operate = function (num1, operator, num2) {
   }
 };
 
-module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-};
+// adding the display text to the input screen
+inputScreen.appendChild(displayText);
