@@ -1,35 +1,50 @@
 let firstNumber;
 let operator;
 let lastNumber;
+let resultValue = "";
 let displayValue = "";
 
 console.log("hello");
 
 const inputScreen = document.querySelector(".input-screen");
-const displayText = document.createElement("p");
+const displayText = document.createElement("div");
+// const resultDiv = document.createElement("div");
+const resultText = document.createElement("div");
 
 // selecting the clear all button
 const acButton = document.querySelector("#ac");
 acButton.addEventListener("click", (e) => {
   displayValue = "";
+  resultValue = "";
   displayText.textContent = displayValue;
+  resultText.textContent = resultValue;
 });
 
-const handleCalculations = () => {
-  let operators = ["+", "-", "*", "/"];
+const getProblemFormat = (problem) => {
+  let afterProblem, firstNumber, operator, lastNumber, result;
+  let operators = ["+", "-", "×", "÷"];
   operators.forEach((item) => {
-    if (!displayValue.includes(item)) return;
-    let operatorIndex = displayValue.indexOf(item);
-    let firstNumber = displayValue.substring(0, operatorIndex);
-    let operator = displayValue[operatorIndex];
-    let lastNumber = displayValue.substring(
-      operatorIndex + 1,
-      displayValue.length
-    );
-    console.log(firstNumber, lastNumber);
-    let result = operate(+firstNumber, operator, +lastNumber);
-    console.log({ result });
+    if (!problem.includes(item)) return;
+    let operatorIndex = problem.indexOf(item);
+    firstNumber = problem.substring(0, operatorIndex);
+    operator = problem[operatorIndex];
+    lastNumber = problem.substring(operatorIndex + 1, problem.length);
+    operators.forEach((item) => {
+      if (!lastNumber.includes(item)) return;
+      lastNumber = problem.substring(operatorIndex, problem.indexOf(item));
+      afterProblem = result = operate(firstNumber, operator, lastNumber);
+      getProblemFormat(lastNumber);
+    });
   });
+  return { firstNumber, operator, lastNumber };
+};
+
+const handleCalculations = () => {
+  let { firstNumber, operator, lastNumber } = getProblemFormat(displayValue);
+  if (lastNumber) console.log(firstNumber, lastNumber);
+  resultValue = operate(+firstNumber, operator, +lastNumber);
+  console.log({ resultValue });
+  resultText.textContent = resultValue;
 };
 
 // Selecting all input buttons and adding display text
@@ -42,12 +57,10 @@ allInputButtons.forEach((item) => {
     console.log({ className });
     if (buttonId === "=") {
       handleCalculations();
-    }
-    if (className === "operator" && buttonId !== "=") {
-      displayValue += e.target.id;
     } else {
-      displayValue += e.target.id;
+      displayValue += e?.target?.id;
     }
+
     displayText.textContent = displayValue;
   });
 });
@@ -77,10 +90,10 @@ const operate = function (num1, operator, num2) {
     case "-":
       result = subtract(num1, num2);
       break;
-    case "*":
+    case "×":
       result = multiply(num1, num2);
       break;
-    case "/":
+    case "÷":
       result = divide(num1, num2);
       break;
     default:
@@ -91,3 +104,5 @@ const operate = function (num1, operator, num2) {
 
 // adding the display text to the input screen
 inputScreen.appendChild(displayText);
+// inputScreen.appendChild(resultDiv);
+inputScreen.appendChild(resultText);
