@@ -1,10 +1,5 @@
-let firstNumber;
-let operator;
-let lastNumber;
 let resultValue = "";
 let displayValue = "";
-
-console.log("hello");
 
 const inputScreen = document.querySelector(".input-screen");
 const displayText = document.createElement("div");
@@ -20,31 +15,37 @@ acButton.addEventListener("click", (e) => {
   resultText.textContent = resultValue;
 });
 
-const getProblemFormat = (problem) => {
-  let afterProblem, firstNumber, operator, lastNumber, result;
+const handleCalculation = (equation) => {
   let operators = ["+", "-", "×", "÷"];
-  operators.forEach((item) => {
-    if (!problem.includes(item)) return;
-    let operatorIndex = problem.indexOf(item);
-    firstNumber = problem.substring(0, operatorIndex);
-    operator = problem[operatorIndex];
-    lastNumber = problem.substring(operatorIndex + 1, problem.length);
-    operators.forEach((item) => {
-      if (!lastNumber.includes(item)) return;
-      lastNumber = problem.substring(operatorIndex, problem.indexOf(item));
-      afterProblem = result = operate(firstNumber, operator, lastNumber);
-      getProblemFormat(lastNumber);
-    });
-  });
-  return { firstNumber, operator, lastNumber };
+  let indexArr = [];
+  for (let i = 0; i < equation.split("").length; i++) {
+    for (let j = 0; j < operators.length; j++) {
+      // Push all the operators' indexes present in the equation into an array
+      if (equation[i] === operators[j]) {
+        indexArr.push(i);
+      }
+    }
+  }
+  // Checking till all the operators are calculated
+  for (let i = 0; i < indexArr.length; i++) {
+    let operatorIndex = indexArr[i];
+    let firstNum;
+    if (i === 0) {
+      firstNum = equation.substring(0, operatorIndex);
+    } else {
+      // firstNum must be the result of previous equation
+      firstNum = resultValue;
+    }
+    let operator = equation[operatorIndex];
+    let lastNum = equation.substring(operatorIndex + 1, indexArr[i + 1]);
+    resultValue = operate(+firstNum, operator, +lastNum);
+    console.log({ resultValue });
+  }
+  return resultValue;
 };
 
-const handleCalculations = () => {
-  let { firstNumber, operator, lastNumber } = getProblemFormat(displayValue);
-  if (lastNumber) console.log(firstNumber, lastNumber);
-  resultValue = operate(+firstNumber, operator, +lastNumber);
-  console.log({ resultValue });
-  resultText.textContent = resultValue;
+const getResult = () => {
+  resultText.textContent = handleCalculation(displayValue);
 };
 
 // Selecting all input buttons and adding display text
@@ -56,7 +57,7 @@ allInputButtons.forEach((item) => {
     let buttonId = e.target?.id;
     console.log({ className });
     if (buttonId === "=") {
-      handleCalculations();
+      getResult();
     } else {
       displayValue += e?.target?.id;
     }
@@ -94,7 +95,11 @@ const operate = function (num1, operator, num2) {
       result = multiply(num1, num2);
       break;
     case "÷":
-      result = divide(num1, num2);
+      if (num2 === 0) {
+        result = "Can't perform this operation!";
+      } else {
+        result = divide(num1, num2);
+      }
       break;
     default:
       break;
