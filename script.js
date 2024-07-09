@@ -17,12 +17,20 @@ acButton.addEventListener("click", (e) => {
   resultText.textContent = resultValue;
 });
 
+const handleBackspace = () => {
+  let erasedValue = displayValue.split("").splice(displayValue.length - 1, 1);
+  if (erasedValue[0] === " ") {
+    displayValue = displayValue.slice(0, displayValue.length - 2);
+  } else {
+    displayValue = displayValue.slice(0, displayValue.length - 1);
+  }
+  console.log({ erasedValue });
+  displayText.textContent = displayValue;
+};
+
 // selecting the backspace button
 const backspaceButton = document.querySelector("#backspace");
-backspaceButton.addEventListener("click", (e) => {
-  displayValue = displayValue.slice(0, displayValue.length - 1);
-  displayText.textContent = displayValue;
-});
+backspaceButton.addEventListener("click", (e) => handleBackspace());
 
 const handleCalculation = (equation) => {
   let operators = ["+", "-", "×", "÷"];
@@ -55,13 +63,11 @@ const handleCalculation = (equation) => {
 
 const getResult = () => {
   displayText.style.fontSize = "14px";
-
   resultText.textContent = handleCalculation(displayValue);
 };
 
 // Selecting all input buttons and adding display text
 const allInputButtons = document.querySelectorAll(".buttons-container button");
-console.log(allInputButtons);
 allInputButtons.forEach((item) => {
   item.addEventListener("click", (e) => {
     let className = e.target?.className;
@@ -77,6 +83,36 @@ allInputButtons.forEach((item) => {
 
     displayText.textContent = displayValue;
   });
+});
+
+// Keyboard support
+document.addEventListener("keydown", (e) => {
+  console.log({ e });
+  if (
+    e?.code.includes("Numpad") ||
+    e?.code.includes("Digit") ||
+    e?.code.includes("Equal")
+  ) {
+    if (e?.key !== "=" && e?.key !== "Enter") {
+      console.log("inside if", e?.key);
+      let key = e?.key;
+      if (key === "+" || key === "-" || key === "*" || key === "/") {
+        key = key === "*" ? "×" : key === "/" ? "÷" : key;
+        console.log({ key });
+        displayValue += " " + key + " ";
+      } else {
+        displayValue += key;
+      }
+      console.log({ displayValue });
+      displayText.textContent = displayValue;
+    } else {
+      getResult();
+    }
+  } else if (e?.code.includes("Backspace")) {
+    handleBackspace();
+  } else {
+    return;
+  }
 });
 
 const add = function (num1, num2) {
