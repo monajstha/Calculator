@@ -1,5 +1,6 @@
 let resultValue = "";
 let displayValue = "";
+let errorValue = "";
 
 const inputScreen = document.querySelector(".input-screen");
 const displayText = document.createElement("div");
@@ -11,8 +12,16 @@ const acButton = document.querySelector("#ac");
 acButton.addEventListener("click", (e) => {
   displayValue = "";
   resultValue = "";
+  displayText.style.fontSize = "18px";
   displayText.textContent = displayValue;
   resultText.textContent = resultValue;
+});
+
+// selecting the backspace button
+const backspaceButton = document.querySelector("#backspace");
+backspaceButton.addEventListener("click", (e) => {
+  displayValue = displayValue.slice(0, displayValue.length - 1);
+  displayText.textContent = displayValue;
 });
 
 const handleCalculation = (equation) => {
@@ -45,6 +54,8 @@ const handleCalculation = (equation) => {
 };
 
 const getResult = () => {
+  displayText.style.fontSize = "14px";
+
   resultText.textContent = handleCalculation(displayValue);
 };
 
@@ -56,8 +67,10 @@ allInputButtons.forEach((item) => {
     let className = e.target?.className;
     let buttonId = e.target?.id;
     console.log({ className });
-    if (buttonId === "=") {
+    if (buttonId === "equal") {
       getResult();
+    } else if (className === "operator") {
+      displayValue += " " + e?.target?.id + " ";
     } else {
       displayValue += e?.target?.id;
     }
@@ -96,7 +109,7 @@ const operate = function (num1, operator, num2) {
       break;
     case "÷":
       if (num2 === 0) {
-        result = "Can't perform this operation!";
+        result = "ERROR!";
       } else {
         result = divide(num1, num2);
       }
@@ -107,6 +120,8 @@ const operate = function (num1, operator, num2) {
   return result;
 };
 
+displayText.style.fontSize = "18px";
+resultText.style.fontSize = "28px";
 // adding the display text to the input screen
 inputScreen.appendChild(displayText);
 // inputScreen.appendChild(resultDiv);

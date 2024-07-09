@@ -30,7 +30,7 @@ body {
   margin: 0px 5px 10px 5px;
   background-color: rgb(23, 20, 20);
   color: #fff;
-  height: 50px;
+  height: 65px;
   padding: 10px 10px;
   border-radius: 5px;
   align-items: flex-end;
@@ -39,6 +39,7 @@ body {
 
 .ac-button-container {
   display: flex;
+  flex-direction: row;
   justify-content: flex-end;
   width: 96%;
   margin-bottom: 10px;
@@ -47,6 +48,7 @@ body {
 #ac {
   border-radius: 5px;
   padding: 5px 8px;
+  margin: 0 5px 0px 5px;
 }
 
 .buttons-container {
@@ -59,4 +61,14 @@ body {
   padding: 12px 25px;
   margin: 4px;
   border-radius: 5px;
+}
+
+.operator {
+  background-color: azure;
+}
+
+#equal {
+  background-color: cornflowerblue;
+  font-weight: bolder;
+  font-size: medium;
 }
