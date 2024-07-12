@@ -44,9 +44,9 @@ backspaceButton.addEventListener("click", (e) => handleBackspace());
 const infixToPostfix = (infix) => {
   // defining operator's precedence
   let precedence = {
-    "÷": 2,
-    "×": 2,
-    "+": 1,
+    "÷": 4,
+    "×": 3,
+    "+": 2,
     "-": 1,
   };
 
