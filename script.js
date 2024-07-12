@@ -1,3 +1,4 @@
+let placeholder = "0";
 let resultValue = "";
 let displayValue = "";
 let errorValue = "";
@@ -10,6 +11,10 @@ const displayText = document.createElement("div");
 // const resultDiv = document.createElement("div");
 const resultText = document.createElement("div");
 
+// adding placeholder
+displayText.textContent = placeholder;
+resultText.textContent = placeholder;
+
 // selecting the clear all button
 const acButton = document.querySelector("#ac");
 acButton.addEventListener("click", (e) => {
@@ -17,8 +22,8 @@ acButton.addEventListener("click", (e) => {
   resultValue = "";
   currentNumber = "";
   displayText.style.fontSize = "18px";
-  displayText.textContent = displayValue;
-  resultText.textContent = resultValue;
+  displayText.textContent = placeholder;
+  resultText.textContent = placeholder;
 });
 
 const handleBackspace = () => {
@@ -36,59 +41,64 @@ const handleBackspace = () => {
 const backspaceButton = document.querySelector("#backspace");
 backspaceButton.addEventListener("click", (e) => handleBackspace());
 
-const handleCalculation = (problem) => {
-  let equation = problem;
-  let eqArr = equation.split("");
-  let indexArr = [];
+const infixToPostfix = (infix) => {
+  // defining operator's precedence
+  let precedence = {
+    "÷": 2,
+    "×": 2,
+    "+": 1,
+    "-": 1,
+  };
 
-  for (let i = 0; i < operators.length; i++) {
-    // Return result when result value is negative
-    if (equation[0] === operators[i]) return resultValue;
-    for (let j = 0; j < eqArr.length; j++) {
-      if (operators[i] === equation[j]) {
-        indexArr.push(j);
+  let operators = ["÷", "×", "+", "-"];
+  let stack = [];
+  let output = [];
+
+  let tokens = infix.split(" ");
+
+  tokens.forEach((token) => {
+    if (!isNaN(token)) {
+      output.push(token);
+    } else if (operators.includes(token)) {
+      while (
+        stack.length &&
+        precedence[stack[stack.length - 1]] >= precedence[token]
+      ) {
+        output.push(stack.pop());
       }
+      stack.push(token);
     }
+  });
+
+  while (stack.length) {
+    output.push(stack.pop());
   }
 
-  // When there are no operators left, return result value
-  if (!indexArr.length) return resultValue;
+  return output;
+};
 
-  let sortedIndexArr = [...indexArr].sort((a, b) => a - b);
-  let startIndex, operatorIndex, endIndex;
-  operatorIndex = sortedIndexArr.indexOf(indexArr[0]);
+const evaluatePostfix = (postfix) => {
+  let stack = [];
 
-  startIndex = operatorIndex === 0 ? 0 : sortedIndexArr[operatorIndex - 1] + 1;
-  endIndex =
-    operatorIndex === sortedIndexArr.length - 1
-      ? equation.length
-      : sortedIndexArr[operatorIndex + 1];
-
-  // Taking the first equation
-  let shortEquation = equation.substring(startIndex, endIndex);
-  let shortEquationOperatorIndex;
-  for (let i = 0; i < operators.length; i++) {
-    if (shortEquation.includes(operators[i])) {
-      shortEquationOperatorIndex = shortEquation.indexOf(operators[i]);
-      break;
+  postfix.forEach((token) => {
+    if (!isNaN(token)) {
+      stack.push(parseFloat(token));
+    } else {
+      let num2 = stack.pop();
+      let num1 = stack.pop();
+      let result = operate(num1, token, num2);
+      stack.push(result);
     }
-  }
-  let firstNum = shortEquation.substring(0, shortEquationOperatorIndex);
-  let operator = shortEquation[shortEquationOperatorIndex];
-  let lastNum = shortEquation.substring(
-    shortEquationOperatorIndex + 1,
-    shortEquation.length
-  );
-  resultValue = operate(+firstNum, operator, +lastNum);
-  let deleteCount = endIndex - startIndex;
+  });
 
-  // Replace the first equation with the result value
-  let newEquationArr = equation.split("");
-  newEquationArr.splice(startIndex, deleteCount, resultValue);
-  let newEquation = newEquationArr.join("");
-  handleCalculation(newEquation);
+  return stack[0];
+};
 
-  return resultValue;
+const handleCalculation = (problem) => {
+  let postFix = infixToPostfix(problem);
+  let result = evaluatePostfix(postFix);
+
+  return result;
 };
 
 const getResult = () => {
