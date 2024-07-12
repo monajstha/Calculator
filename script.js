@@ -1,6 +1,9 @@
 let resultValue = "";
 let displayValue = "";
 let errorValue = "";
+let operators = ["÷", "×", "+", "-"];
+// Variable to check single decimal on the current number
+let currentNumber = "";
 
 const inputScreen = document.querySelector(".input-screen");
 const displayText = document.createElement("div");
@@ -12,6 +15,7 @@ const acButton = document.querySelector("#ac");
 acButton.addEventListener("click", (e) => {
   displayValue = "";
   resultValue = "";
+  currentNumber = "";
   displayText.style.fontSize = "18px";
   displayText.textContent = displayValue;
   resultText.textContent = resultValue;
@@ -23,6 +27,7 @@ const handleBackspace = () => {
     displayValue = displayValue.slice(0, displayValue.length - 2);
   } else {
     displayValue = displayValue.slice(0, displayValue.length - 1);
+    currentNumber = currentNumber.slice(0, currentNumber.length - 1);
   }
   displayText.textContent = displayValue;
 };
@@ -33,7 +38,6 @@ backspaceButton.addEventListener("click", (e) => handleBackspace());
 
 const handleCalculation = (problem) => {
   let equation = problem;
-  let operators = ["÷", "×", "+", "-"];
   let eqArr = equation.split("");
   let indexArr = [];
 
@@ -102,7 +106,10 @@ allInputButtons.forEach((item) => {
       getResult();
     } else if (className === "operator") {
       displayValue += " " + e?.target?.id + " ";
+      currentNumber = "";
     } else {
+      if (e?.target?.id === "." && currentNumber?.includes(".")) return;
+      currentNumber += e?.target?.id;
       displayValue += e?.target?.id;
     }
 
