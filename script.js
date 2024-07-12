@@ -24,7 +24,6 @@ const handleBackspace = () => {
   } else {
     displayValue = displayValue.slice(0, displayValue.length - 1);
   }
-  console.log({ erasedValue });
   displayText.textContent = displayValue;
 };
 
@@ -32,32 +31,59 @@ const handleBackspace = () => {
 const backspaceButton = document.querySelector("#backspace");
 backspaceButton.addEventListener("click", (e) => handleBackspace());
 
-const handleCalculation = (equation) => {
-  let operators = ["+", "-", "×", "÷"];
+const handleCalculation = (problem) => {
+  let equation = problem;
+  let operators = ["÷", "×", "+", "-"];
+  let eqArr = equation.split("");
   let indexArr = [];
-  for (let i = 0; i < equation.split("").length; i++) {
-    for (let j = 0; j < operators.length; j++) {
-      // Push all the operators' indexes present in the equation into an array
-      if (equation[i] === operators[j]) {
-        indexArr.push(i);
+
+  for (let i = 0; i < operators.length; i++) {
+    // Return result when result value is negative
+    if (equation[0] === operators[i]) return resultValue;
+    for (let j = 0; j < eqArr.length; j++) {
+      if (operators[i] === equation[j]) {
+        indexArr.push(j);
       }
     }
   }
-  // Checking till all the operators are calculated
-  for (let i = 0; i < indexArr.length; i++) {
-    let operatorIndex = indexArr[i];
-    let firstNum;
-    if (i === 0) {
-      firstNum = equation.substring(0, operatorIndex);
-    } else {
-      // firstNum must be the result of previous equation
-      firstNum = resultValue;
+
+  // When there are no operators left, return result value
+  if (!indexArr.length) return resultValue;
+
+  let sortedIndexArr = [...indexArr].sort((a, b) => a - b);
+  let startIndex, operatorIndex, endIndex;
+  operatorIndex = sortedIndexArr.indexOf(indexArr[0]);
+
+  startIndex = operatorIndex === 0 ? 0 : sortedIndexArr[operatorIndex - 1] + 1;
+  endIndex =
+    operatorIndex === sortedIndexArr.length - 1
+      ? equation.length
+      : sortedIndexArr[operatorIndex + 1];
+
+  // Taking the first equation
+  let shortEquation = equation.substring(startIndex, endIndex);
+  let shortEquationOperatorIndex;
+  for (let i = 0; i < operators.length; i++) {
+    if (shortEquation.includes(operators[i])) {
+      shortEquationOperatorIndex = shortEquation.indexOf(operators[i]);
+      break;
     }
-    let operator = equation[operatorIndex];
-    let lastNum = equation.substring(operatorIndex + 1, indexArr[i + 1]);
-    resultValue = operate(+firstNum, operator, +lastNum);
-    console.log({ resultValue });
   }
+  let firstNum = shortEquation.substring(0, shortEquationOperatorIndex);
+  let operator = shortEquation[shortEquationOperatorIndex];
+  let lastNum = shortEquation.substring(
+    shortEquationOperatorIndex + 1,
+    shortEquation.length
+  );
+  resultValue = operate(+firstNum, operator, +lastNum);
+  let deleteCount = endIndex - startIndex;
+
+  // Replace the first equation with the result value
+  let newEquationArr = equation.split("");
+  newEquationArr.splice(startIndex, deleteCount, resultValue);
+  let newEquation = newEquationArr.join("");
+  handleCalculation(newEquation);
+
   return resultValue;
 };
 
@@ -72,7 +98,6 @@ allInputButtons.forEach((item) => {
   item.addEventListener("click", (e) => {
     let className = e.target?.className;
     let buttonId = e.target?.id;
-    console.log({ className });
     if (buttonId === "equal") {
       getResult();
     } else if (className === "operator") {
@@ -87,23 +112,19 @@ allInputButtons.forEach((item) => {
 
 // Keyboard support
 document.addEventListener("keydown", (e) => {
-  console.log({ e });
   if (
     e?.code.includes("Numpad") ||
     e?.code.includes("Digit") ||
     e?.code.includes("Equal")
   ) {
     if (e?.key !== "=" && e?.key !== "Enter") {
-      console.log("inside if", e?.key);
       let key = e?.key;
       if (key === "+" || key === "-" || key === "*" || key === "/") {
         key = key === "*" ? "×" : key === "/" ? "÷" : key;
-        console.log({ key });
         displayValue += " " + key + " ";
       } else {
         displayValue += key;
       }
-      console.log({ displayValue });
       displayText.textContent = displayValue;
     } else {
       getResult();
